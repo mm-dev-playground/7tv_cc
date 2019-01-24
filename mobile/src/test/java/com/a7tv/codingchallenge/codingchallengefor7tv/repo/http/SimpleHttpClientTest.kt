@@ -1,0 +1,28 @@
+package com.a7tv.codingchallenge.codingchallengefor7tv.repo.http
+
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+import java.net.URL
+import java.util.concurrent.CountDownLatch
+
+internal class SimpleHttpClientTest {
+
+    @Test
+    fun `foo test`() {
+
+        val latch = CountDownLatch(1)
+        val client = SimpleHttpClient()
+        client.get(URL("https://www.7tv.de"))
+                .doFinally {
+                    latch.countDown()
+                }
+                .subscribe(
+                        { content -> println(content) },
+                        { error -> System.err.println(error) }
+                )
+
+        latch.await()
+
+    }
+
+}
