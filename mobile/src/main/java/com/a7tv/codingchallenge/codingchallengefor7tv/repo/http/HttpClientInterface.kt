@@ -6,6 +6,6 @@ import java.net.URL
 
 interface HttpClientInterface {
 
-    fun get(url: URL): Single<Try<String>>
+    fun getJsonFrom(url: URL): Single<Try<String>>
 
 }
