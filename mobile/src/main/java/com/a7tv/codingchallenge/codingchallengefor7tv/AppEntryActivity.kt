@@ -1,7 +1,7 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 
 class AppEntryActivity : AppCompatActivity() {
 
