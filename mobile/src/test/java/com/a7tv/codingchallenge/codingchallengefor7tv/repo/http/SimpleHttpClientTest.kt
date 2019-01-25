@@ -1,5 +1,6 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.repo.http
 
+import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GithubDataSource
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
@@ -22,6 +23,11 @@ internal class SimpleHttpClientTest {
                 )
                 */
         GithubDataSource(SimpleHttpClient()).getNextUserDataset()
+                .map {
+                    it.map {
+                        GitHubUser.jsonListAdapter.fromJson(it.jsonString)
+                    }
+                }
                 .doFinally {
                     latch.countDown()
                 }

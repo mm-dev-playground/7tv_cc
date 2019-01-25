@@ -1,5 +1,6 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.repo.http
 
+import android.util.Log
 import com.a7tv.codingchallenge.codingchallengefor7tv.util.HttpException
 import com.a7tv.codingchallenge.codingchallengefor7tv.util.typeclasses.Option
 import com.a7tv.codingchallenge.codingchallengefor7tv.util.typeclasses.Try
@@ -29,6 +30,7 @@ class SimpleHttpClient : HttpClientInterface {
 
     override fun getJsonFrom(url: URL) = Single.fromCallable {
         try {
+            Log.d(javaClass.simpleName, "query: $url")
             val connection = createAndRegisterUrlConnection(url)
             when (connection.responseCode) {
                 HttpURLConnection.HTTP_OK ->

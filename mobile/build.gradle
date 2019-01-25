@@ -26,8 +26,13 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation "androidx.lifecycle:lifecycle-extensions:2.0.0"
+    implementation "androidx.paging:paging-runtime:$paging_version"
+    implementation "androidx.paging:paging-rxjava2:$paging_version"
     implementation "io.reactivex.rxjava2:rxjava:$rxjava2_version"
+    implementation "com.squareup.moshi:moshi:$moshi_version"
+    implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.20'
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
     testImplementation "org.junit.vintage:junit-vintage-engine:$junit_version"
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
