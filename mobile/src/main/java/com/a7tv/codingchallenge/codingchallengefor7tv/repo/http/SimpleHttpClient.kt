@@ -11,6 +11,9 @@ import java.net.URL
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
+/**
+ * Basic implementation of a http client which executes only ONE request per time.
+ */
 class SimpleHttpClient : HttpClientInterface {
 
     private companion object {
@@ -19,6 +22,8 @@ class SimpleHttpClient : HttpClientInterface {
         const val CONTENT_TYPE_VAlUE_JSON = "application/json"
     }
 
+    // Synchronized reference to a potentially running url connection to enable cancellation of this
+    // request
     private var currentUrlConnectionOption: Option<HttpURLConnection> = Option.None
     private val urlConnectionLock = ReentrantLock()
 
@@ -62,9 +67,6 @@ class SimpleHttpClient : HttpClientInterface {
 
     private fun readContentFrom(connection: HttpURLConnection) =
             with(connection.inputStream) {
-                connection.headerFields.forEach {
-                    println(it)
-                }
                 val bufferedReader = BufferedReader(InputStreamReader(this))
                 bufferedReader.readToString()
             }
