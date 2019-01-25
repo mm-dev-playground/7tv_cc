@@ -32,11 +32,13 @@ class GitHubUserListAdapter : PagedListAdapter<GitHubUser, RecyclerView.ViewHold
         (holder as UserListEntryViewHolder).textView.text = getItem(position)?.login // TODO nullable - not pretty!
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return super.getItemViewType(position)
+    }
+
     private data class UserListEntryViewHolder(val view: View) :
             RecyclerView.ViewHolder(view) {
-
-        val textView = view.findViewById<TextView>(R.id.txt)
-
+        val textView: TextView = view.findViewById(R.id.txt)
     }
 
 }

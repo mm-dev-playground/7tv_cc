@@ -10,6 +10,7 @@ import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataFactory
 class GitHubUserListViewModel : ViewModel() {
 
     val userListLiveData: LiveData<PagedList<GitHubUser>>
+    val loadingStateData: LiveData<Int>
 
     init {
 
@@ -20,6 +21,7 @@ class GitHubUserListViewModel : ViewModel() {
                 .setPageSize(100)
                 .build()
 
+        loadingStateData = userListDataFactory.dataSourceLiveData
         userListLiveData = LivePagedListBuilder(userListDataFactory, pagedListConfig)
                 .build()
     }

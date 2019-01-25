@@ -37,9 +37,13 @@ class SimpleHttpClient : HttpClientInterface {
                     Try.just(
                             HttpGetAnswer(connection.headerFields, readContentFrom(connection))
                     )
-                else -> Try.Failure(HttpException(connection.responseCode))
+                else -> {
+                    Log.e(javaClass.simpleName, "HTTP error response message: ${connection.responseMessage}")
+                    Try.Failure(HttpException(connection.responseCode))
+                }
             }
         } catch (e: Exception) {
+            Log.e(javaClass.simpleName, e.toString())
             Try.Failure(e)
         } finally {
             disconnectRegisteredUrlConnection()
