@@ -6,7 +6,7 @@ import java.net.URL
 
 interface HttpClientInterface {
 
-    fun getJsonFrom(url: URL): Single<Try<String>>
+    fun getJsonFrom(url: URL): Single<Try<HttpGetAnswer>>
 
     fun cancelRunningRequest()
 

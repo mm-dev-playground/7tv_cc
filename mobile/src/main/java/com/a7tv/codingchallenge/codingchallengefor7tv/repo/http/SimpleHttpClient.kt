@@ -26,7 +26,10 @@ class SimpleHttpClient : HttpClientInterface {
         try {
             val connection = createAndRegisterUrlConnection(url)
             when (connection.responseCode) {
-                HttpURLConnection.HTTP_OK -> Try.just(readContentFrom(connection))
+                HttpURLConnection.HTTP_OK ->
+                    Try.just(
+                            HttpGetAnswer(connection.headerFields, readContentFrom(connection))
+                    )
                 else -> Try.Failure(HttpException(connection.responseCode))
             }
         } catch (e: Exception) {
@@ -59,6 +62,9 @@ class SimpleHttpClient : HttpClientInterface {
 
     private fun readContentFrom(connection: HttpURLConnection) =
             with(connection.inputStream) {
+                connection.headerFields.forEach {
+                    println(it)
+                }
                 val bufferedReader = BufferedReader(InputStreamReader(this))
                 bufferedReader.readToString()
             }

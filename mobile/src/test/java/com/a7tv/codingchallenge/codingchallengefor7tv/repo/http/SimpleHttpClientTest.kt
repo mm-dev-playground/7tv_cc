@@ -11,7 +11,7 @@ internal class SimpleHttpClientTest {
 
         val latch = CountDownLatch(1)
         val client = SimpleHttpClient()
-        client.getJsonFrom(URL("https://www.7tv.de"))
+        client.getJsonFrom(URL("https://api.github.com/users"))
                 .doFinally {
                     latch.countDown()
                 }
