@@ -1,7 +1,7 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.repo.http
 
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GithubDataSource
 import org.junit.jupiter.api.Test
-import java.net.URL
 import java.util.concurrent.CountDownLatch
 
 internal class SimpleHttpClientTest {
@@ -10,8 +10,18 @@ internal class SimpleHttpClientTest {
     fun `foo test`() {
 
         val latch = CountDownLatch(1)
+        /*
         val client = SimpleHttpClient()
         client.getJsonFrom(URL("https://api.github.com/users"))
+                .doFinally {
+                    latch.countDown()
+                }
+                .subscribe(
+                        { content -> println(content) },
+                        { error -> System.err.println(error) }
+                )
+                */
+        GithubDataSource(SimpleHttpClient()).getNextUserDataset()
                 .doFinally {
                     latch.countDown()
                 }
