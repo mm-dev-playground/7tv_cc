@@ -31,39 +31,4 @@ internal class TryTest {
         assertEquals(expectedError, afterMap.error)
     }
 
-    @Test
-    fun `test flat map on success`() {
-        val startValue = 4
-        val beforeMap = Try.just(startValue)
-
-        val mappingFunction = { i: Int ->
-            when (i % 2) {
-                0 -> Try.Success(i / 2)
-                else -> Try.Failure(IllegalArgumentException())
-            }
-        }
-        val afterMap = beforeMap.flatMap(mappingFunction)
-
-        assertTrue(afterMap is Try.Success)
-        afterMap as Try.Success
-        assertEquals((mappingFunction(startValue) as Try.Success).value, afterMap.value)
-    }
-
-    @Test
-    fun `test flat map to failure`() {
-        val startValue = 5
-        val beforeMap = Try.just(startValue)
-
-        val mappingFunction = { i: Int ->
-            when (i % 2) {
-                0 -> Try.Success(i / 2)
-                else -> Try.Failure(IllegalArgumentException())
-            }
-        }
-        val afterMap = beforeMap.flatMap(mappingFunction)
-
-        assertTrue(afterMap is Try.Failure)
-    }
-
-
 }
