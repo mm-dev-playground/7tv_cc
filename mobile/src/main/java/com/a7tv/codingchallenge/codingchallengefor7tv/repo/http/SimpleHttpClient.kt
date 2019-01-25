@@ -1,12 +1,15 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.repo.http
 
 import com.a7tv.codingchallenge.codingchallengefor7tv.util.HttpException
+import com.a7tv.codingchallenge.codingchallengefor7tv.util.typeclasses.Option
 import com.a7tv.codingchallenge.codingchallengefor7tv.util.typeclasses.Try
 import io.reactivex.Single
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 class SimpleHttpClient : HttpClientInterface {
 
@@ -16,12 +19,42 @@ class SimpleHttpClient : HttpClientInterface {
         const val CONTENT_TYPE_VAlUE_JSON = "application/json"
     }
 
-    override fun getJsonFrom(url: URL) = singleFromSafeCallable {
-        val connection = openHttpUrlConnection(url)
-        when (connection.responseCode) {
-            HttpURLConnection.HTTP_OK -> Try.just(readContentFrom(connection))
-            else -> Try.Failure(HttpException(connection.responseCode))
+    private var currentUrlConnectionOption: Option<HttpURLConnection> = Option.None
+    private val urlConnectionLock = ReentrantLock()
+
+    override fun getJsonFrom(url: URL) = Single.fromCallable {
+        try {
+            val connection = createAndRegisterUrlConnection(url)
+            when (connection.responseCode) {
+                HttpURLConnection.HTTP_OK -> Try.just(readContentFrom(connection))
+                else -> Try.Failure(HttpException(connection.responseCode))
+            }
+        } catch (e: Exception) {
+            Try.Failure(e)
+        } finally {
+            disconnectRegisteredUrlConnection()
         }
+    }
+
+    override fun cancelRunningRequest() {
+        disconnectRegisteredUrlConnection()
+    }
+
+    private fun disconnectRegisteredUrlConnection() {
+        urlConnectionLock.withLock {
+            currentUrlConnectionOption.map {
+                it.disconnect()
+            }
+            currentUrlConnectionOption = Option.None
+        }
+    }
+
+    private fun createAndRegisterUrlConnection(url: URL): HttpURLConnection {
+        val connection = openHttpUrlConnection(url)
+        urlConnectionLock.withLock {
+            currentUrlConnectionOption = Option.just(connection)
+        }
+        return connection
     }
 
     private fun readContentFrom(connection: HttpURLConnection) =
@@ -44,13 +77,5 @@ class SimpleHttpClient : HttpClientInterface {
                 null -> stringBuffer.toString()
                 else -> readToString(readLine(), stringBuffer.append(line))
             }
-
-    private fun <T> singleFromSafeCallable(f: () -> Try<T>) = Single.fromCallable {
-        try {
-            f()
-        } catch (e: Exception) {
-            Try.Failure(e)
-        }
-    }
 
 }

@@ -8,4 +8,6 @@ interface HttpClientInterface {
 
     fun getJsonFrom(url: URL): Single<Try<String>>
 
+    fun cancelRunningRequest()
+
 }
