@@ -37,7 +37,7 @@ class AppEntryActivity : AppCompatActivity() {
                 .setPageSize(20) // TODO extract magic number
                 .build()
         val viewModelFactory = GitHubUserListViewModelFactory(
-                GitHubDataFactory(),
+                dataFactory,
                 LivePagedListBuilder(dataFactory, pagedListConfig)
         )
         return ViewModelProviders.of(

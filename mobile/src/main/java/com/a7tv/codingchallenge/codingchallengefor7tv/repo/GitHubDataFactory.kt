@@ -15,9 +15,10 @@ class GitHubDataFactory : DataSource.Factory<Long, GitHubUser>() {
     var newSearchCallback: (String) -> Unit = { _ -> Unit }
         private set
 
-    private lateinit var currentDataSource: GitHubDataSource
     private var currentSourceId: GitHubDataSource.SourceId = GitHubDataSource.SourceId.AllUsers
     private var currentSearchText: String = ""
+
+    private lateinit var currentDataSource: GitHubDataSource
 
     override fun create(): DataSource<Long, GitHubUser> {
         currentDataSource = GitHubDataSource(

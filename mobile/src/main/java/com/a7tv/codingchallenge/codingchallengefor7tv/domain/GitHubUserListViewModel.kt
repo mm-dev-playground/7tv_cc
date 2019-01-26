@@ -1,7 +1,6 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.domain
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
@@ -13,18 +12,15 @@ import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
 class GitHubUserListViewModel(private val dataFactory: GitHubDataFactory,
-                              private val livePagedListBuilder: LivePagedListBuilder<Long, GitHubUser>) : ViewModel() {
+                              livePagedListBuilder: LivePagedListBuilder<Long, GitHubUser>) : ViewModel() {
 
-    var loadingStateData: LiveData<Int> = MutableLiveData()
-    val usersLiveData: LiveData<PagedList<GitHubUser>>
+    var loadingStateData: LiveData<Int> = dataFactory.dataSourceLiveData
+    val usersLiveData: LiveData<PagedList<GitHubUser>> = livePagedListBuilder.build()
 
     private val searchTextRxSubject = PublishSubject.create<String>()
     private val searchTextDisposable: Disposable
 
     init {
-        loadingStateData = dataFactory.dataSourceLiveData
-        usersLiveData = livePagedListBuilder.build()
-
         searchTextDisposable = searchTextRxSubject.hide()
                 .debounce(750, TimeUnit.MILLISECONDS)
                 .doOnNext {
