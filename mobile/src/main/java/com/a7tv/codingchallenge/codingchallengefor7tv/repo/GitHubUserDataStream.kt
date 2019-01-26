@@ -2,6 +2,7 @@ package com.a7tv.codingchallenge.codingchallengefor7tv.repo
 
 import android.annotation.SuppressLint
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
+import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUserId
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.http.HttpClientInterface
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.http.HttpGetAnswer
 import com.a7tv.codingchallenge.codingchallengefor7tv.util.LinkHeaderParser
@@ -10,12 +11,12 @@ import io.reactivex.Scheduler
 import java.net.URL
 
 class GitHubUserDataStream(
-        override val onSuccess: (Pair<List<GitHubUser>, Long>) -> Unit,
+        override val onSuccess: (Pair<List<GitHubUser>, GitHubUserId>) -> Unit,
         override val onFailure: (Throwable) -> Unit,
         override val onException: (Throwable) -> Unit,
         private val client: HttpClientInterface,
         private val scheduler: Scheduler
-) : DataStream<Pair<List<GitHubUser>, Long>, URL> {
+) : DataStream<Pair<List<GitHubUser>, GitHubUserId>, URL> {
 
     @SuppressLint("CheckResult")
     // single subscription return value can be neglected, see http://reactivex.io/documentation/single.html

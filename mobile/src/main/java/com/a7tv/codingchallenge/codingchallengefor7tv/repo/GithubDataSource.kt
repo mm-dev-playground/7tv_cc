@@ -32,7 +32,7 @@ class GithubDataSource(private val client: HttpClientInterface,
         GitHubUserDataStream(
                 onSuccess = { (userList, nextId) ->
                     signalLoadingSuccessful()
-                    callback.onResult(userList, null, nextId)
+                    callback.onResult(userList, null, nextId.value)
                 },
                 onFailure = { e ->
                     Log.e(javaClass.simpleName, e.toString())
@@ -54,7 +54,7 @@ class GithubDataSource(private val client: HttpClientInterface,
         GitHubUserDataStream(
                 onSuccess = { (userList, nextId) ->
                     signalLoadingSuccessful()
-                    callback.onResult(userList, nextId)
+                    callback.onResult(userList, nextId.value)
                 },
                 onFailure = { e ->
                     Log.e(javaClass.simpleName, e.toString())

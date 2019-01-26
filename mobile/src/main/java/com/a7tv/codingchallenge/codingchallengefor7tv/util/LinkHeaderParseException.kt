@@ -4,7 +4,7 @@ data class LinkHeaderParseException(val reason: String, val content: String?) : 
 
     companion object Reason {
         const val WRONG_SIZE = "Illegal size of header values"
-        const val NO_ID_FOUND = "No id could be found"
+        const val NO_ID_FOUND = "No value could be found"
         const val KEY_NOT_PRESENT = "No Link header is present"
     }
 
