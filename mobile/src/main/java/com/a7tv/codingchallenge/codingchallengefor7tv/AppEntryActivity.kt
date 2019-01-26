@@ -1,6 +1,9 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import androidx.annotation.IntRange
 import androidx.appcompat.app.AppCompatActivity
@@ -8,43 +11,57 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a7tv.codingchallenge.codingchallengefor7tv.domain.GitHubUserListViewModel
-import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GithubDataSource
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataSource
 import com.a7tv.codingchallenge.codingchallengefor7tv.view.GitHubUserListAdapter
 import kotlinx.android.synthetic.main.activity_app_entry.*
 
 class AppEntryActivity : AppCompatActivity() {
 
+    lateinit var listAdapter: GitHubUserListAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_app_entry)
 
-        val listAdapter = initializeListDataAdapter()
-        initializeViewModel(listAdapter)
+        listAdapter = initializeListDataAdapter()
+        initAndConnectViewModel(listAdapter)
     }
 
-    private fun initializeViewModel(listAdapter: GitHubUserListAdapter) =
+    private fun initAndConnectViewModel(listAdapter: GitHubUserListAdapter) =
             ViewModelProviders.of(this).get(GitHubUserListViewModel::class.java).run {
-                this.loadingStateData.observe(this@AppEntryActivity, Observer { loadingState ->
+                loadingStateData.observe(this@AppEntryActivity, Observer { loadingState ->
+                    Log.d(javaClass.simpleName, "new loading state: $loadingState")
                     applyLoadingState(loadingState)
                 })
-                userListLiveData.observe(this@AppEntryActivity, Observer { userList ->
+                usersLiveData.observe(this@AppEntryActivity, Observer { userList ->
                     listAdapter.submitList(userList)
+                })
+                search_edit_text.addTextChangedListener(object: TextWatcher {
+                    override fun afterTextChanged(s: Editable?) {
+                        s?.let {
+                            this@run.searchTextEdited(it.toString())
+                        }
+                    }
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
                 })
             }
 
     private fun initializeListDataAdapter() =
-            GitHubUserListAdapter().run {
+            GitHubUserListAdapter().also {
                 recycler_view.layoutManager = LinearLayoutManager(this@AppEntryActivity)
-                recycler_view.adapter = this
-                this
+                recycler_view.adapter = it
             }
 
     private fun applyLoadingState(@IntRange(from=-1, to=2) loadingState: Int) {
         when (loadingState) {
-            GithubDataSource.State.INIT -> userListInitializing()
-            GithubDataSource.State.LOADING -> userListIsLoading()
-            GithubDataSource.State.LOADED -> userListLoaded()
-            GithubDataSource.State.ERROR -> userListLoadingFailed()
+            GitHubDataSource.State.INIT -> userListInitializing()
+            GitHubDataSource.State.LOADING -> userListIsLoading()
+            GitHubDataSource.State.LOADED -> userListLoaded()
+            GitHubDataSource.State.ERROR -> userListLoadingFailed()
+            3 -> {
+                listAdapter.notifyDataSetChanged()
+            }
             //else -> Log.e(javaClass.simpleName, "Loading state not handled: $loadingState")
         }
     }

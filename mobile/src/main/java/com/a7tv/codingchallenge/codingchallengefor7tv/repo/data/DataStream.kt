@@ -1,4 +1,4 @@
-package com.a7tv.codingchallenge.codingchallengefor7tv.repo
+package com.a7tv.codingchallenge.codingchallengefor7tv.repo.data
 
 interface DataStream<T, V> {
 

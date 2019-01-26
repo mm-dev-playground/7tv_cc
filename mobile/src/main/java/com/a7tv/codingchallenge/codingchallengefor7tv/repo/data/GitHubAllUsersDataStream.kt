@@ -1,4 +1,4 @@
-package com.a7tv.codingchallenge.codingchallengefor7tv.repo
+package com.a7tv.codingchallenge.codingchallengefor7tv.repo.data
 
 import android.annotation.SuppressLint
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
@@ -10,13 +10,15 @@ import com.a7tv.codingchallenge.codingchallengefor7tv.util.typeclasses.Try
 import io.reactivex.Scheduler
 import java.net.URL
 
-class GitHubUserDataStream(
+class GitHubAllUsersDataStream(
         override val onSuccess: (Pair<List<GitHubUser>, GitHubUserId>) -> Unit,
         override val onFailure: (Throwable) -> Unit,
         override val onException: (Throwable) -> Unit,
         private val client: HttpClientInterface,
         private val scheduler: Scheduler
 ) : DataStream<Pair<List<GitHubUser>, GitHubUserId>, URL> {
+
+    private val linkHeaderParser = LinkHeaderParser()
 
     @SuppressLint("CheckResult")
     // single subscription return value can be neglected, see http://reactivex.io/documentation/single.html
@@ -39,7 +41,7 @@ class GitHubUserDataStream(
 
     private fun parseUserListFromJson(answerTry: Try<HttpGetAnswer>) =
             answerTry.flatMap { answer ->
-                LinkHeaderParser().getNextId(answer).flatMap { parsedId ->
+                linkHeaderParser.getNextUserId(answer).flatMap { parsedId ->
                     val parsingResult = GitHubUser.jsonListAdapter.fromJson(answer.jsonString)
                     when (parsingResult) {
                         null -> Try.Failure(IllegalArgumentException("Cannot parse json: ${answer.jsonString}"))
