@@ -13,12 +13,11 @@ class GitHubUserListViewModel : ViewModel() {
     val loadingStateData: LiveData<Int>
 
     init {
-
         val userListDataFactory = GitHubDataFactory()
 
         val pagedListConfig = PagedList.Config.Builder()
                 .setPrefetchDistance(1)
-                .setPageSize(100)
+                .setPageSize(20) // TODO extract magic number
                 .build()
 
         loadingStateData = userListDataFactory.dataSourceLiveData

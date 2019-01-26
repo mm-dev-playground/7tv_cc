@@ -10,17 +10,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.a7tv.codingchallenge.codingchallengefor7tv.R
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
 
-class GitHubUserListAdapter : PagedListAdapter<GitHubUser, RecyclerView.ViewHolder>(
-        object: DiffUtil.ItemCallback<GitHubUser>() {
-            override fun areItemsTheSame(oldItem: GitHubUser, newItem: GitHubUser): Boolean {
-                return oldItem.id == newItem.id
-            }
+class GitHubUserListAdapter :
+        PagedListAdapter<GitHubUser, RecyclerView.ViewHolder>(GitHubUserItemComparator) {
 
-            override fun areContentsTheSame(oldItem: GitHubUser, newItem: GitHubUser): Boolean {
-                return oldItem == newItem
-            }
+    private object GitHubUserItemComparator : DiffUtil.ItemCallback<GitHubUser>() {
+        override fun areItemsTheSame(oldItem: GitHubUser, newItem: GitHubUser): Boolean {
+            return oldItem.id == newItem.id
         }
-) {
+        override fun areContentsTheSame(oldItem: GitHubUser, newItem: GitHubUser): Boolean {
+            return oldItem == newItem
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -30,10 +30,6 @@ class GitHubUserListAdapter : PagedListAdapter<GitHubUser, RecyclerView.ViewHold
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as UserListEntryViewHolder).textView.text = getItem(position)?.login // TODO nullable - not pretty!
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return super.getItemViewType(position)
     }
 
     private data class UserListEntryViewHolder(val view: View) :

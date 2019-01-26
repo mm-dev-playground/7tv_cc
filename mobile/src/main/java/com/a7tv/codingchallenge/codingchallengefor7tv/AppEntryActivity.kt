@@ -1,8 +1,8 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import androidx.annotation.IntRange
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -18,29 +18,34 @@ class AppEntryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_app_entry)
 
-        val viewModel = ViewModelProviders.of(this).get(GitHubUserListViewModel::class.java)
-
-        viewModel.loadingStateData.observe(this, Observer {
-            applyLoadingState(it)
-        })
-
-        val listAdapter = GitHubUserListAdapter()
-
-        viewModel.userListLiveData.observe(this, Observer {
-            listAdapter.submitList(it)
-        })
-
-        recycler_view.layoutManager = LinearLayoutManager(this)
-        recycler_view.adapter = listAdapter
+        val listAdapter = initializeListDataAdapter()
+        initializeViewModel(listAdapter)
     }
 
-    private fun applyLoadingState(loadingState: Int) {
+    private fun initializeViewModel(listAdapter: GitHubUserListAdapter) =
+            ViewModelProviders.of(this).get(GitHubUserListViewModel::class.java).run {
+                this.loadingStateData.observe(this@AppEntryActivity, Observer { loadingState ->
+                    applyLoadingState(loadingState)
+                })
+                userListLiveData.observe(this@AppEntryActivity, Observer { userList ->
+                    listAdapter.submitList(userList)
+                })
+            }
+
+    private fun initializeListDataAdapter() =
+            GitHubUserListAdapter().run {
+                recycler_view.layoutManager = LinearLayoutManager(this@AppEntryActivity)
+                recycler_view.adapter = this
+                this
+            }
+
+    private fun applyLoadingState(@IntRange(from=-1, to=2) loadingState: Int) {
         when (loadingState) {
             GithubDataSource.State.INIT -> userListInitializing()
             GithubDataSource.State.LOADING -> userListIsLoading()
             GithubDataSource.State.LOADED -> userListLoaded()
             GithubDataSource.State.ERROR -> userListLoadingFailed()
-            else -> Log.e(javaClass.simpleName, "Loading state not handled: $loadingState")
+            //else -> Log.e(javaClass.simpleName, "Loading state not handled: $loadingState")
         }
     }
 
@@ -50,12 +55,12 @@ class AppEntryActivity : AppCompatActivity() {
 
     private fun userListIsLoading() {
         loading_indicator.visibility = View.VISIBLE
-        recycler_view.alpha = 0.25f
+        recycler_view.alpha = 0.25f // TODO extract magic number
     }
 
     private fun userListLoaded() {
         loading_indicator.visibility = View.INVISIBLE
-        recycler_view.alpha = 1.0f
+        recycler_view.alpha = 1.0f // TODO extract magic number
     }
 
     private fun userListLoadingFailed() {
