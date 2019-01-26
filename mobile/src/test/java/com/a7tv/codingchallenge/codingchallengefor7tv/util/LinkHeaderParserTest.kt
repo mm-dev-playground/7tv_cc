@@ -37,15 +37,14 @@ internal class LinkHeaderParserTest {
     }
 
     @Test
-    fun `parser not crashing on no header present`() {
+    fun `final id reported on no header present`() {
         val parser = LinkHeaderParser()
         val apiAnswer = HttpGetAnswer(emptyMap(), "Foo Json")
         val parsedId = parser.getNextUserId(apiAnswer)
 
-        val expectedException = LinkHeaderParseException(LinkHeaderParseException.Reason.KEY_NOT_PRESENT, null)
-        assertTrue(parsedId is Try.Failure)
-        parsedId as Try.Failure
-        assertEquals(expectedException, parsedId.error)
+        assertTrue(parsedId is Try.Success)
+        parsedId as Try.Success
+        assertEquals(LinkHeaderParser.FINAL_ID, parsedId.value.value)
     }
 
     @Test
@@ -56,7 +55,7 @@ internal class LinkHeaderParserTest {
                 mapOf("Link" to multipleLinkKeys), "Foo Json")
         val parsedId = parser.getNextUserId(apiAnswer)
 
-        val expectedException = LinkHeaderParseException(LinkHeaderParseException.Reason.WRONG_SIZE,
+        val expectedException = LinkHeaderParseException(LinkHeaderParseException.WRONG_SIZE,
                 multipleLinkKeys.joinToString())
         assertTrue(parsedId is Try.Failure)
         parsedId as Try.Failure
@@ -71,7 +70,7 @@ internal class LinkHeaderParserTest {
                 mapOf("Link" to invalidKeyValue), "Foo Json")
         val parsedId = parser.getNextUserId(apiAnswer)
 
-        val expectedException = LinkHeaderParseException(LinkHeaderParseException.Reason.NO_ID_FOUND,
+        val expectedException = LinkHeaderParseException(LinkHeaderParseException.INVALID_HEADER_CONTENT,
                 invalidKeyValue.joinToString())
         assertTrue(parsedId is Try.Failure)
         parsedId as Try.Failure
@@ -86,7 +85,7 @@ internal class LinkHeaderParserTest {
                 mapOf("Link" to invalidKeyValue), "Foo Json")
         val parsedId = parser.getNextUserId(apiAnswer)
 
-        val expectedException = LinkHeaderParseException(LinkHeaderParseException.Reason.NO_ID_FOUND,
+        val expectedException = LinkHeaderParseException(LinkHeaderParseException.INVALID_HEADER_CONTENT,
                 invalidKeyValue.joinToString())
         assertTrue(parsedId is Try.Failure)
         parsedId as Try.Failure

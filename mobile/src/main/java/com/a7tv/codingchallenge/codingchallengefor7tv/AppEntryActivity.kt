@@ -9,26 +9,45 @@ import androidx.annotation.IntRange
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a7tv.codingchallenge.codingchallengefor7tv.domain.GitHubUserListViewModel
+import com.a7tv.codingchallenge.codingchallengefor7tv.domain.GitHubUserListViewModelFactory
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataFactory
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataSource
 import com.a7tv.codingchallenge.codingchallengefor7tv.view.GitHubUserListAdapter
 import kotlinx.android.synthetic.main.activity_app_entry.*
 
 class AppEntryActivity : AppCompatActivity() {
 
-    lateinit var listAdapter: GitHubUserListAdapter
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_app_entry)
 
-        listAdapter = initializeListDataAdapter()
-        initAndConnectViewModel(listAdapter)
+         initializeListDataAdapter().run {
+            initAndConnectViewModel(this)
+        }
+    }
+
+    private fun createViewModel(): GitHubUserListViewModel {
+        val dataFactory = GitHubDataFactory()
+        val pagedListConfig = PagedList.Config.Builder()
+                .setPrefetchDistance(1)
+                .setPageSize(20) // TODO extract magic number
+                .build()
+        val viewModelFactory = GitHubUserListViewModelFactory(
+                GitHubDataFactory(),
+                LivePagedListBuilder(dataFactory, pagedListConfig)
+        )
+        return ViewModelProviders.of(
+                this,
+                viewModelFactory
+        ).get(GitHubUserListViewModel::class.java)
     }
 
     private fun initAndConnectViewModel(listAdapter: GitHubUserListAdapter) =
-            ViewModelProviders.of(this).get(GitHubUserListViewModel::class.java).run {
+            createViewModel().run {
                 loadingStateData.observe(this@AppEntryActivity, Observer { loadingState ->
                     Log.d(javaClass.simpleName, "new loading state: $loadingState")
                     applyLoadingState(loadingState)
@@ -60,7 +79,7 @@ class AppEntryActivity : AppCompatActivity() {
             GitHubDataSource.State.LOADED -> userListLoaded()
             GitHubDataSource.State.ERROR -> userListLoadingFailed()
             3 -> {
-                listAdapter.notifyDataSetChanged()
+                //listAdapter.notifyDataSetChanged()
             }
             //else -> Log.e(javaClass.simpleName, "Loading state not handled: $loadingState")
         }

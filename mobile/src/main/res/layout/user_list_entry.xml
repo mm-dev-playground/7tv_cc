@@ -8,7 +8,6 @@
     android:background="@drawable/list_item_border"
     android:minHeight="72dp"
     android:layout_margin="8dp"
-    android:elevation="2dp"
     android:gravity="center_vertical"
     >
 
@@ -18,6 +17,7 @@
         android:layout_height="40dp"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
+        android:elevation="4dp"
         tools:ignore="ContentDescription"
         />
 
