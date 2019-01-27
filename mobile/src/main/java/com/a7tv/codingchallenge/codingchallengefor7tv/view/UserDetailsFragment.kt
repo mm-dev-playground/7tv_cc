@@ -26,6 +26,6 @@ class UserDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        user_name.text = userName
+        user_name_text_view.text = userName
     }
 }
