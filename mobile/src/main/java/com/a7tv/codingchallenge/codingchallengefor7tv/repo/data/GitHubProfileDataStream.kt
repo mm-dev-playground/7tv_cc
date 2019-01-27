@@ -29,6 +29,7 @@ class GitHubProfileDataStream(
                         }
                     }
                 }
+                .subscribeOn(scheduler)
                 .subscribe(
                         { result ->
                             when (result) {
