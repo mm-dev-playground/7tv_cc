@@ -34,7 +34,7 @@ class GitHubUserListAdapter(private val userTappedCallback: (GitHubUser) -> Unit
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         with(getItem(position)) {
             when (this) {
-                null -> Log.e(javaClass.simpleName, "No user found at position: $position") // TODO signal error
+                null -> Log.e(javaClass.simpleName, "No user found at position: $position") // TODO signal error in UI
                 else -> {
                     holder as UserListEntryViewHolder
                     holder.model = this

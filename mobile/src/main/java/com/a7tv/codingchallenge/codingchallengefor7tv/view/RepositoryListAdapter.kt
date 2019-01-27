@@ -32,7 +32,7 @@ class RepositoryListAdapter :
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         with(getItem(position)) {
             when (this) {
-                null -> Log.e(javaClass.simpleName, "No repository found at position: $position") // TODO signal error
+                null -> Log.e(javaClass.simpleName, "No repository found at position: $position") // TODO signal error in UI
                 else -> {
                     holder as RepositoryEntryViewHolder
                     holder.textView.text = this.fullName ?: "n/a"

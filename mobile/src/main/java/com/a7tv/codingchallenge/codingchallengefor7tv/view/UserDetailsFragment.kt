@@ -70,7 +70,7 @@ class UserDetailsFragment : Fragment() {
     private fun createViewModel(url: String): GitHubUserDetailsViewModel {
         val pagedListConfig = PagedList.Config.Builder()
                 .setPrefetchDistance(1)
-                .setPageSize(20) // TODO extract magic number
+                .setPageSize(20) // 20 as param should be evaluated by the UX department
                 .build()
         val repositoriesDataFactory = GitHubRepoDataFactory(
                 URL(userRepoUrl ?: "")

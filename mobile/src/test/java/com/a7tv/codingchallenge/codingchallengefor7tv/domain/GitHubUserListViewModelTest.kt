@@ -22,13 +22,13 @@ internal class GitHubUserListViewModelTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
-    fun `loading state is fowarded to view`() {
+    fun `loading state is forwarded to view`() {
         val dataFactory = GitHubUserDataFactory()
         val listBuilder = LivePagedListBuilder(
                 dataFactory,
                 PagedList.Config.Builder()
                         .setPrefetchDistance(1)
-                        .setPageSize(20) // TODO extract magic number
+                        .setPageSize(20)
                         .build()
         )
         val viewModel = GitHubUserListViewModel(dataFactory, listBuilder)
