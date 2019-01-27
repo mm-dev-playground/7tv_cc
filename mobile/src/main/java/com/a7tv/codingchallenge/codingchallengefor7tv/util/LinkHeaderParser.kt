@@ -18,7 +18,7 @@ class LinkHeaderParser {
         private const val LINK_HEADER_NEXT_REL = "rel=\"next\""
 
         private val valueSincePattern = Regex("\\?since=").toPattern()
-        private val valuePagePattern = Regex("&page=").toPattern()
+        private val valuePagePattern = Regex("page=").toPattern()
         private val linkInfoRegex = Regex("(?<=rel=\").+?(?=\")")
         private val linkRegex = Regex("(?<=<).+?(?=>)")
         private val numbersRegex = Regex("\\d+")

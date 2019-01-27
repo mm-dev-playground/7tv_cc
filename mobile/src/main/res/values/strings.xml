@@ -9,4 +9,5 @@
     <string name="company">Company: %1$s</string>
     <string name="location">Location: %1$s</string>
     <string name="details_header">Details</string>
+    <string name="repositories_header">Repositories</string>
 </resources>

@@ -8,8 +8,8 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PageKeyedDataSource
 import androidx.paging.PagedList
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
-import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataFactory
-import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataSource
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubUserDataFactory
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubUserDataSource
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test
@@ -23,7 +23,7 @@ internal class GitHubUserListViewModelTest {
 
     @Test
     fun `foo test`() {
-        val dataFactory = GitHubDataFactory()
+        val dataFactory = GitHubUserDataFactory()
         val listBuilder = LivePagedListBuilder(
                 dataFactory,
                 PagedList.Config.Builder()
@@ -59,7 +59,7 @@ internal class GitHubUserListViewModelTest {
                 }
         )
 
-        assertEquals(GitHubDataSource.State.LOADED, currentLoadingState)
+        assertEquals(GitHubUserDataSource.State.LOADED, currentLoadingState)
     }
 
 }

@@ -7,4 +7,5 @@ object GitHubApiConstants {
     fun buildSinceParam(userId: Long) = "?since=$userId"
     fun buildQueryParam(query: String) = "?q=$query"
     fun buildPagedQueryParam(query: String, pageId: Long) = buildQueryParam(query) + "&page=$pageId"
+    fun buildPageParam(pageId: Long) = "?page=$pageId"
 }

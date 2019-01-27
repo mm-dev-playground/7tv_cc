@@ -10,12 +10,15 @@ import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 
-class GitHubDataFactory : DataSource.Factory<Long, GitHubUser>() {
+// TODO to make this class and components relying on it properly testable, inject the
+// httpClient and RX scheduler to it - otherwise it is hard to test E2E based on the underlying
+// data streams
+class GitHubUserDataFactory : DataSource.Factory<Long, GitHubUser>() {
 
-    private var currentSourceId: GitHubDataSource.SourceId = GitHubDataSource.SourceId.AllUsers
+    private var currentSourceIdUser: GitHubUserDataSource.SourceId = GitHubUserDataSource.SourceId.AllUsers
     private var currentSearchText: String = ""
 
-    private lateinit var currentDataSource: GitHubDataSource
+    private lateinit var currentUserDataSource: GitHubUserDataSource
 
     private var dataSourceInitialized = false
 
@@ -23,39 +26,39 @@ class GitHubDataFactory : DataSource.Factory<Long, GitHubUser>() {
 
     private val onLoadingFailure: (Throwable) -> Unit = { e ->
         Log.e(javaClass.simpleName, e.toString())
-        stateCommunicationSubject.onNext(GitHubDataSource.State.ERROR)
+        stateCommunicationSubject.onNext(GitHubUserDataSource.State.ERROR)
     }
 
     private val onLoadingException: (Throwable) -> Unit = { e ->
         Log.e(javaClass.simpleName, e.toString())
-        stateCommunicationSubject.onNext(GitHubDataSource.State.ERROR)
+        stateCommunicationSubject.onNext(GitHubUserDataSource.State.ERROR)
     }
 
     override fun create(): DataSource<Long, GitHubUser> {
-        currentDataSource = GitHubDataSource(
-                currentSourceId,
+        currentUserDataSource = GitHubUserDataSource(
+                currentSourceIdUser,
                 currentSearchText,
                 AllUsersDataStream(SimpleHttpClient(), Schedulers.io(), onLoadingFailure, onLoadingException),
                 SearchUsersDataStream(SimpleHttpClient(), Schedulers.io(), onLoadingFailure, onLoadingException),
                 stateCommunicationSubject
         )
         dataSourceInitialized = true
-        return currentDataSource
+        return currentUserDataSource
     }
 
     fun setCurrentSearchText(text: String) {
         if (text != currentSearchText) {
             currentSearchText = text
-            currentDataSource.invalidate()
+            currentUserDataSource.invalidate()
         }
     }
 
-    fun setNewSourceId(id: GitHubDataSource.SourceId) {
+    fun setNewSourceId(id: GitHubUserDataSource.SourceId) {
         Log.d(javaClass.simpleName, "received source id: $id")
-        if (id != currentSourceId) {
-            currentDataSource.sourceId = id // forward to data source to let it choose correct stream
-            currentSourceId = id // save new id for create()
-            currentDataSource.invalidate() // invalidate the source (hence, the list)
+        if (id != currentSourceIdUser) {
+            currentUserDataSource.sourceId = id // forward to data source to let it choose correct stream
+            currentSourceIdUser = id // save new id for create()
+            currentUserDataSource.invalidate() // invalidate the source (hence, the list)
         }
     }
 

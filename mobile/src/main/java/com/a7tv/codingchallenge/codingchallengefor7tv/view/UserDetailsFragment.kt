@@ -8,27 +8,35 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.a7tv.codingchallenge.codingchallengefor7tv.R
 import com.a7tv.codingchallenge.codingchallengefor7tv.domain.GitHubUserDetailsViewModel
 import com.a7tv.codingchallenge.codingchallengefor7tv.domain.GitHubUserDetailsViewModelFactory
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUserProfile
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubRepoDataFactory
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.http.SimpleHttpClient
 import com.squareup.picasso.Picasso
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.user_details_fragment.*
+import java.net.URL
 
 class UserDetailsFragment : Fragment() {
 
     companion object {
         const val BUNDLE_KEY_USER_PROFILE_URL = "user_profile_url"
+        const val BUNDLE_KEY_USER_REPO_URL = "user_repo_url"
     }
 
     private var userProfileUrl: String? = null
+    private var userRepoUrl: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             userProfileUrl = it.getString(BUNDLE_KEY_USER_PROFILE_URL)
+            userRepoUrl = it.getString(BUNDLE_KEY_USER_REPO_URL)
         }
     }
 
@@ -39,18 +47,37 @@ class UserDetailsFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        userProfileUrl?.let { url ->
+        userProfileUrl?.let { url -> // we do not check for a valid repo url since it is less important for the user
+
+            val repoListAdapter = RepositoryListAdapter().also {
+                repositories_recycler_view.layoutManager = LinearLayoutManager(this@UserDetailsFragment.context)
+                repositories_recycler_view.adapter = it
+            }
+
             val viewModel = createViewModel(url)
+
             viewModel.userDetailsLiveData.observe(viewLifecycleOwner, Observer { profileInfo ->
                 progress_bar.visibility = View.INVISIBLE
                 bindUserInfoToViews(profileInfo)
+            })
+
+            viewModel.repoLiveData.observe(viewLifecycleOwner, Observer { pagedGitHubRepoList ->
+                repoListAdapter.submitList(pagedGitHubRepoList)
             })
         } ?: { Log.e(javaClass.simpleName, "User profile URL is not available") }()
     }
 
     private fun createViewModel(url: String): GitHubUserDetailsViewModel {
+        val pagedListConfig = PagedList.Config.Builder()
+                .setPrefetchDistance(1)
+                .setPageSize(20) // TODO extract magic number
+                .build()
+        val repositoriesDataFactory = GitHubRepoDataFactory(
+                URL(userRepoUrl ?: "")
+        )
+        val livePagedListBuilder = LivePagedListBuilder(repositoriesDataFactory, pagedListConfig)
         val viewModelFactory = GitHubUserDetailsViewModelFactory(
-                url, SimpleHttpClient(), Schedulers.io()
+                url, SimpleHttpClient(), Schedulers.io(), livePagedListBuilder
         )
         return ViewModelProviders.of(this@UserDetailsFragment, viewModelFactory)
                 .get(GitHubUserDetailsViewModel::class.java)

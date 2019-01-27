@@ -13,7 +13,7 @@ import com.a7tv.codingchallenge.codingchallengefor7tv.R
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
 import com.squareup.picasso.Picasso
 
-class GitHubUserListAdapter(val userTappedCallback: (GitHubUser) -> Unit) :
+class GitHubUserListAdapter(private val userTappedCallback: (GitHubUser) -> Unit) :
         PagedListAdapter<GitHubUser, RecyclerView.ViewHolder>(GitHubUserItemComparator) {
 
     private object GitHubUserItemComparator : DiffUtil.ItemCallback<GitHubUser>() {

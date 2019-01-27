@@ -14,11 +14,11 @@ import com.a7tv.codingchallenge.codingchallengefor7tv.util.LinkHeaderParser
 import io.reactivex.subjects.Subject
 import java.net.URL
 
-class GitHubDataSource(initialSourceId: SourceId,
-                       private var currentSearchText: String,
-                       private val allUsersDataStream: AllUsersDataStream,
-                       private val searchUsersDataStream: SearchUsersDataStream,
-                       private val stateCommunicationSubject: Subject<Int>) :
+class GitHubUserDataSource(initialSourceId: SourceId,
+                           private var currentSearchText: String,
+                           private val allUsersDataStream: AllUsersDataStream,
+                           private val searchUsersDataStream: SearchUsersDataStream,
+                           private val stateCommunicationSubject: Subject<Int>) :
         PageKeyedDataSource<Long, GitHubUser>() {
 
     sealed class SourceId {

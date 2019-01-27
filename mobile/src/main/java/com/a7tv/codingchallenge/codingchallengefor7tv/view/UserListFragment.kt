@@ -18,9 +18,10 @@ import com.a7tv.codingchallenge.codingchallengefor7tv.R
 import com.a7tv.codingchallenge.codingchallengefor7tv.domain.GitHubUserListViewModel
 import com.a7tv.codingchallenge.codingchallengefor7tv.domain.GitHubUserListViewModelFactory
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
-import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataFactory
-import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataSource
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubUserDataFactory
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubUserDataSource
 import com.a7tv.codingchallenge.codingchallengefor7tv.view.UserDetailsFragment.Companion.BUNDLE_KEY_USER_PROFILE_URL
+import com.a7tv.codingchallenge.codingchallengefor7tv.view.UserDetailsFragment.Companion.BUNDLE_KEY_USER_REPO_URL
 import kotlinx.android.synthetic.main.user_list_fragment.*
 
 class UserListFragment : Fragment() {
@@ -40,7 +41,7 @@ class UserListFragment : Fragment() {
     }
 
     private fun createViewModel(): GitHubUserListViewModel {
-        val dataFactory = GitHubDataFactory()
+        val dataFactory = GitHubUserDataFactory()
         val pagedListConfig = PagedList.Config.Builder()
                 .setPrefetchDistance(1)
                 .setPageSize(20) // TODO extract magic number
@@ -79,6 +80,7 @@ class UserListFragment : Fragment() {
         Log.d(javaClass.simpleName, "user tapped: $user")
         val bundle = Bundle().apply {
             putString(BUNDLE_KEY_USER_PROFILE_URL, user.url)
+            putString(BUNDLE_KEY_USER_REPO_URL, user.reposUrl)
         }
         findNavController(this).navigate(R.id.userDetailsFragment, bundle)
     }
@@ -91,9 +93,9 @@ class UserListFragment : Fragment() {
 
     private fun applyLoadingState(loadingState: Int) {
         when (loadingState) {
-            GitHubDataSource.State.LOADING -> userListIsLoading()
-            GitHubDataSource.State.LOADED -> userListLoaded()
-            GitHubDataSource.State.ERROR -> userListLoadingFailed()
+            GitHubUserDataSource.State.LOADING -> userListIsLoading()
+            GitHubUserDataSource.State.LOADED -> userListLoaded()
+            GitHubUserDataSource.State.ERROR -> userListLoadingFailed()
         }
     }
 
