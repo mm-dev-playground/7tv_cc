@@ -1,7 +1,6 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.repo
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
@@ -10,22 +9,19 @@ import io.reactivex.schedulers.Schedulers
 
 class GitHubDataFactory : DataSource.Factory<Long, GitHubUser>() {
 
-    var dataSourceLiveData: LiveData<Int> = MutableLiveData()
-        private set
-    var newSearchCallback: (String) -> Unit = { _ -> Unit }
-        private set
-
     private var currentSourceId: GitHubDataSource.SourceId = GitHubDataSource.SourceId.AllUsers
     private var currentSearchText: String = ""
 
     private lateinit var currentDataSource: GitHubDataSource
 
+    private var dataSourceInitialized = false
+
     override fun create(): DataSource<Long, GitHubUser> {
         currentDataSource = GitHubDataSource(
                 SimpleHttpClient(), Schedulers.io(), currentSourceId, currentSearchText
         )
-        dataSourceLiveData = currentDataSource.stateLiveData
-        newSearchCallback = currentDataSource::onNewSearch
+        dataSourceInitialized = true
+        // dataSourceLiveData = currentDataSource.stateLiveData
         return currentDataSource
     }
 
@@ -43,6 +39,12 @@ class GitHubDataFactory : DataSource.Factory<Long, GitHubUser>() {
             currentSourceId = id // save new id for create()
             currentDataSource.invalidate() // invalidate the source (hence, the list)
         }
+    }
+
+    fun getStatusLiveData() = if (dataSourceInitialized) {
+        currentDataSource.stateLiveData
+    } else {
+        MutableLiveData()
     }
 
 }

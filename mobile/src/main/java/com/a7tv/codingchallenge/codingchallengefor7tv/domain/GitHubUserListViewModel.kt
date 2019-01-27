@@ -14,7 +14,9 @@ import java.util.concurrent.TimeUnit
 class GitHubUserListViewModel(private val dataFactory: GitHubDataFactory,
                               livePagedListBuilder: LivePagedListBuilder<Long, GitHubUser>) : ViewModel() {
 
-    var loadingStateData: LiveData<Int> = dataFactory.dataSourceLiveData
+    var loadingStateData: LiveData<Int> = dataFactory.getStatusLiveData() // TODO still not working!
+        private set
+
     val usersLiveData: LiveData<PagedList<GitHubUser>> = livePagedListBuilder.build()
 
     private val searchTextRxSubject = PublishSubject.create<String>()
@@ -26,7 +28,7 @@ class GitHubUserListViewModel(private val dataFactory: GitHubDataFactory,
                 .doOnNext {
                     if (it.length > 2) {
                         dataFactory.setCurrentSearchText(it) // causes invalidate!
-                        loadingStateData = dataFactory.dataSourceLiveData
+                        loadingStateData = dataFactory.getStatusLiveData()
                     }
                 }
                 .map {
@@ -41,7 +43,8 @@ class GitHubUserListViewModel(private val dataFactory: GitHubDataFactory,
                 .distinctUntilChanged()
                 .doOnNext {
                     dataFactory.setNewSourceId(it) // causes invalidate
-                    loadingStateData = dataFactory.dataSourceLiveData
+                    loadingStateData = dataFactory.getStatusLiveData()
+                    // loadingStateData = dataFactory.getStatusLiveData()
                 }
                 .subscribe()
     }

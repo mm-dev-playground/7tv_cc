@@ -95,10 +95,6 @@ class UserListFragment : Fragment() {
             GitHubDataSource.State.LOADING -> userListIsLoading()
             GitHubDataSource.State.LOADED -> userListLoaded()
             GitHubDataSource.State.ERROR -> userListLoadingFailed()
-            3 -> {
-                //listAdapter.notifyDataSetChanged()
-            }
-            //else -> Log.e(javaClass.simpleName, "Loading state not handled: $loadingState")
         }
     }
 
