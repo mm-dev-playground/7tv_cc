@@ -10,6 +10,9 @@ import com.a7tv.codingchallenge.codingchallengefor7tv.util.typeclasses.Try
 import io.reactivex.Scheduler
 import java.net.URL
 
+/**
+ * Executes a request to .../users?since= and reports the parsed result
+ */
 class AllUsersDataStream(
         private val client: HttpClientInterface,
         private val scheduler: Scheduler,

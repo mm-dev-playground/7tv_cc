@@ -22,7 +22,7 @@ internal class GitHubUserListViewModelTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
-    fun `foo test`() {
+    fun `loading state is fowarded to view`() {
         val dataFactory = GitHubUserDataFactory()
         val listBuilder = LivePagedListBuilder(
                 dataFactory,
@@ -37,7 +37,6 @@ internal class GitHubUserListViewModelTest {
 
 
         var currentLoadingState = -1
-        //val countDownLatch = CountDownLatch(1)
 
         val lifecycleOwner = mock<LifecycleOwner> {  }
         val lifecycle = LifecycleRegistry(lifecycleOwner).apply {
@@ -59,7 +58,7 @@ internal class GitHubUserListViewModelTest {
                 }
         )
 
-        assertEquals(GitHubUserDataSource.State.LOADED, currentLoadingState)
+        assertEquals(GitHubUserDataSource.State.LOADING, currentLoadingState)
     }
 
 }

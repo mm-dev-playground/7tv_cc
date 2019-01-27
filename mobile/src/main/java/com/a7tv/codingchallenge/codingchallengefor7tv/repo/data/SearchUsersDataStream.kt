@@ -11,6 +11,9 @@ import com.a7tv.codingchallenge.codingchallengefor7tv.util.typeclasses.Try
 import io.reactivex.Scheduler
 import java.net.URL
 
+/**
+ * Executes a request to .../searcg?q=...&since= and reports the parsed result
+ */
 class SearchUsersDataStream(
         private val client: HttpClientInterface,
         private val scheduler: Scheduler,
@@ -52,7 +55,7 @@ class SearchUsersDataStream(
             null -> Try.Failure(IllegalArgumentException("Cannot parse json: ${answer.jsonString}"))
             else -> {
                 if (parsingResult.totalCount == parsingResult.items.size) {
-                    Try.Success(parsingResult to GitHubPageId(-1))
+                    Try.Success(parsingResult to GitHubPageId(LinkHeaderParser.FINAL_ID))
                 } else {
                     linkHeaderParser.getNextPage(answer).flatMap { parsedNextPage ->
                         Try.Success(parsingResult to parsedNextPage)

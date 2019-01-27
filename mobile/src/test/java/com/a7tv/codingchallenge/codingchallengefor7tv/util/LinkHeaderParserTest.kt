@@ -92,16 +92,4 @@ internal class LinkHeaderParserTest {
         assertEquals(expectedException, parsedId.error)
     }
 
-    @Test
-    fun `test random input aka playground`() {
-        val parser = LinkHeaderParser()
-        val content = listOf("<https://api.github.com/user/1/repos?page=2>; rel=\"next\", <https://api.github.com/user/1/repos?page=3>; rel=\"last\"")
-        val apiAnswer = HttpGetAnswer(
-                mapOf("Link" to content), "Foo Json")
-        val parsedId = parser.getNextPage(apiAnswer)
-
-        println(parsedId)
-    }
-
-
 }
