@@ -1,6 +1,7 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.util.typeclasses
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 internal class TryTest {
