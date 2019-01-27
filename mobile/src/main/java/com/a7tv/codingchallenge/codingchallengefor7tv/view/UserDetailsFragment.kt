@@ -52,9 +52,8 @@ class UserDetailsFragment : Fragment() {
         val viewModelFactory = GitHubUserDetailsViewModelFactory(
                 url, SimpleHttpClient(), Schedulers.io()
         )
-        val viewModel = ViewModelProviders.of(this@UserDetailsFragment, viewModelFactory)
+        return ViewModelProviders.of(this@UserDetailsFragment, viewModelFactory)
                 .get(GitHubUserDetailsViewModel::class.java)
-        return viewModel
     }
 
     private fun bindUserInfoToViews(profileInfo: GitHubUserProfile) {

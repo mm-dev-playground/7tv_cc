@@ -1,8 +1,6 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.repo
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.data.GitHubAllUsersDataStream
@@ -10,12 +8,14 @@ import com.a7tv.codingchallenge.codingchallengefor7tv.repo.data.GitHubUserSearch
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.http.HttpClientInterface
 import com.a7tv.codingchallenge.codingchallengefor7tv.util.LinkHeaderParser
 import io.reactivex.Scheduler
+import io.reactivex.subjects.Subject
 import java.net.URL
 
 class GitHubDataSource(private val client: HttpClientInterface,
                        private val httpRequestScheduler: Scheduler,
                        initialSourceId: SourceId,
-                       private var currentSearchText: String) :
+                       private var currentSearchText: String,
+                       private val stateCommunicationSubject: Subject<Int>) :
         PageKeyedDataSource<Long, GitHubUser>() {
 
     sealed class SourceId {
@@ -39,7 +39,7 @@ class GitHubDataSource(private val client: HttpClientInterface,
         const val LOADED = 2
     }
 
-    val stateLiveData: LiveData<Int> = MutableLiveData()
+    //val stateLiveData: LiveData<Int> = MutableLiveData()
 
     var sourceId = initialSourceId
 
@@ -158,19 +158,19 @@ class GitHubDataSource(private val client: HttpClientInterface,
     }
 
     private fun signalInitialLoading() {
-        (stateLiveData as MutableLiveData).postValue(State.INIT)
+        stateCommunicationSubject.onNext(State.INIT)
     }
 
     private fun signalLoadingSuccessful() {
-        (stateLiveData as MutableLiveData).postValue(State.LOADED)
+        stateCommunicationSubject.onNext(State.LOADED)
     }
 
     private fun signalLoadingError() {
-        (stateLiveData as MutableLiveData).postValue(State.ERROR)
+        stateCommunicationSubject.onNext(State.ERROR)
     }
 
     private fun signalLoading() {
-        (stateLiveData as MutableLiveData).postValue(State.LOADING)
+        stateCommunicationSubject.onNext(State.LOADING)
     }
 
 }
