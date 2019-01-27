@@ -11,12 +11,14 @@ import androidx.annotation.IntRange
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.NavHostFragment.findNavController
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a7tv.codingchallenge.codingchallengefor7tv.R
 import com.a7tv.codingchallenge.codingchallengefor7tv.domain.GitHubUserListViewModel
 import com.a7tv.codingchallenge.codingchallengefor7tv.domain.GitHubUserListViewModelFactory
+import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataFactory
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataSource
 import kotlinx.android.synthetic.main.user_list_fragment.*
@@ -73,8 +75,16 @@ class UserListFragment : Fragment() {
                 })
             }
 
+    private fun userTapped(user: GitHubUser) {
+        Log.d(javaClass.simpleName, "user tapped: $user")
+        val bundle = Bundle().apply {
+            putString("name", user.login)
+        }
+        findNavController(this).navigate(R.id.userDetailsFragment, bundle)
+    }
+
     private fun initializeListDataAdapter() =
-            GitHubUserListAdapter().also {
+            GitHubUserListAdapter(::userTapped).also {
                 recycler_view.layoutManager = LinearLayoutManager(this@UserListFragment.context)
                 recycler_view.adapter = it
             }

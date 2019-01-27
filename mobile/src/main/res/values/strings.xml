@@ -2,4 +2,7 @@
     <string name="app_name">CodingChallengeFor7tv</string>
     <string name="hint_search_for_github_users">Search for GitHub Users</string>
     <string name="some_error_occured">Some error occured :(</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
