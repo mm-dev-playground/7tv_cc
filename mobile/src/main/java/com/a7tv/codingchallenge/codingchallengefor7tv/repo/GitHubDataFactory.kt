@@ -1,11 +1,12 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.repo
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.http.SimpleHttpClient
+import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 
 class GitHubDataFactory : DataSource.Factory<Long, GitHubUser>() {
 
@@ -16,9 +17,12 @@ class GitHubDataFactory : DataSource.Factory<Long, GitHubUser>() {
 
     private var dataSourceInitialized = false
 
+    private val stateCommunicationSubject = PublishSubject.create<Int>()
+
     override fun create(): DataSource<Long, GitHubUser> {
         currentDataSource = GitHubDataSource(
-                SimpleHttpClient(), Schedulers.io(), currentSourceId, currentSearchText
+                SimpleHttpClient(), Schedulers.io(), currentSourceId, currentSearchText,
+                stateCommunicationSubject
         )
         dataSourceInitialized = true
         // dataSourceLiveData = currentDataSource.stateLiveData
@@ -41,10 +45,6 @@ class GitHubDataFactory : DataSource.Factory<Long, GitHubUser>() {
         }
     }
 
-    fun getStatusLiveData() = if (dataSourceInitialized) {
-        currentDataSource.stateLiveData
-    } else {
-        MutableLiveData()
-    }
+    fun getSourceStatus(): Observable<Int> = stateCommunicationSubject.hide()
 
 }

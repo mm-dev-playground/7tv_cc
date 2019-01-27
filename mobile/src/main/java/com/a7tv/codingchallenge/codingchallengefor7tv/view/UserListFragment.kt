@@ -21,6 +21,7 @@ import com.a7tv.codingchallenge.codingchallengefor7tv.domain.GitHubUserListViewM
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataFactory
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataSource
+import com.a7tv.codingchallenge.codingchallengefor7tv.view.UserDetailsFragment.Companion.BUNDLE_KEY_USER_PROFILE_URL
 import kotlinx.android.synthetic.main.user_list_fragment.*
 
 class UserListFragment : Fragment() {
@@ -78,7 +79,7 @@ class UserListFragment : Fragment() {
     private fun userTapped(user: GitHubUser) {
         Log.d(javaClass.simpleName, "user tapped: $user")
         val bundle = Bundle().apply {
-            putString("name", user.login)
+            putString(BUNDLE_KEY_USER_PROFILE_URL, user.url)
         }
         findNavController(this).navigate(R.id.userDetailsFragment, bundle)
     }

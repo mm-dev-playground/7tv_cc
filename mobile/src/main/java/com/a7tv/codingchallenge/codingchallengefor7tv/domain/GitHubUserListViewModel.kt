@@ -1,12 +1,14 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.domain
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataFactory
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataSource
+import io.reactivex.BackpressureStrategy
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
@@ -14,7 +16,10 @@ import java.util.concurrent.TimeUnit
 class GitHubUserListViewModel(private val dataFactory: GitHubDataFactory,
                               livePagedListBuilder: LivePagedListBuilder<Long, GitHubUser>) : ViewModel() {
 
-    var loadingStateData: LiveData<Int> = dataFactory.getStatusLiveData() // TODO still not working!
+    var loadingStateData: LiveData<Int> = LiveDataReactiveStreams.fromPublisher(
+            dataFactory.getSourceStatus()
+            .toFlowable(BackpressureStrategy.LATEST)
+    )
         private set
 
     val usersLiveData: LiveData<PagedList<GitHubUser>> = livePagedListBuilder.build()
@@ -28,7 +33,6 @@ class GitHubUserListViewModel(private val dataFactory: GitHubDataFactory,
                 .doOnNext {
                     if (it.length > 2) {
                         dataFactory.setCurrentSearchText(it) // causes invalidate!
-                        loadingStateData = dataFactory.getStatusLiveData()
                     }
                 }
                 .map {
@@ -43,8 +47,6 @@ class GitHubUserListViewModel(private val dataFactory: GitHubDataFactory,
                 .distinctUntilChanged()
                 .doOnNext {
                     dataFactory.setNewSourceId(it) // causes invalidate
-                    loadingStateData = dataFactory.getStatusLiveData()
-                    // loadingStateData = dataFactory.getStatusLiveData()
                 }
                 .subscribe()
     }

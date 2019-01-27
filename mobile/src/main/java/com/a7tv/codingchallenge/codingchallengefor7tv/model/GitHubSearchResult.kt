@@ -18,10 +18,7 @@ data class GitHubSearchResult(
         val jsonAdapter: JsonAdapter<GitHubSearchResult> = Moshi.Builder()
                 .add(KotlinJsonAdapterFactory())
                 .build()
-                .adapter<GitHubSearchResult>(
-                        GitHubSearchResult::class.java
-                        //Types.newParameterizedType(List::class.java, GitHubUser::class.java)
-                )
+                .adapter<GitHubSearchResult>(GitHubSearchResult::class.java)
     }
 
 }
