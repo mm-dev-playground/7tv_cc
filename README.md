@@ -11,6 +11,11 @@
 
 ## Shortcomings / Improvements
 
+### TV Application
+- The TV package is just a **placeholder**
+- Therefore, all code from the mobile module needs to be moved to a *commons* lib for proper modularization
+- However, all the necessary project setup steps are taken to allow for Android TV development
+
 ### Testing
 - The project has poor test coverage due to time constraints
 - However, all classes (except from the view package) are built in a composable way; some examples on how to test them on the JVM are given.
