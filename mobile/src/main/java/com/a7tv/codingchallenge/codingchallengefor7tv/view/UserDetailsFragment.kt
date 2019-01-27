@@ -58,12 +58,19 @@ class UserDetailsFragment : Fragment() {
 
     private fun bindUserInfoToViews(profileInfo: GitHubUserProfile) {
         Picasso.get().load(profileInfo.avatarUrl).into(avatar_image_view)
-        user_name_text_view.text = getString(R.string.user_name, profileInfo.name)
-        follower_count_text_view.text = getString(R.string.followers_count,
-                profileInfo.followers.toString())
-        followings_count_text_view.text = getString(R.string.followings_count,
-                profileInfo.following.toString())
-        company_text_view.text = getString(R.string.company, profileInfo.company)
-        location_text_view.text = getString(R.string.location, profileInfo.location)
+        user_name_text_view.text =
+                getString(R.string.user_name, profileInfo.name.withNullPlaceholder())
+        follower_count_text_view.text =
+                getString(R.string.followers_count,
+                        profileInfo.followers.toString().withNullPlaceholder())
+        followings_count_text_view.text =
+                getString(R.string.followings_count,
+                        profileInfo.following.toString().withNullPlaceholder())
+        company_text_view.text =
+                getString(R.string.company, profileInfo.company.withNullPlaceholder())
+        location_text_view.text =
+                getString(R.string.location, profileInfo.location.withNullPlaceholder())
     }
+
+    private fun String?.withNullPlaceholder() = this ?: "n/a"
 }

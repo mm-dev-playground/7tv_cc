@@ -18,12 +18,13 @@ class GitHubUserDetailsViewModel(userProfileUrl: String,
 
     init {
         GitHubProfileDataStream(
-                onSuccess = { profile -> (userDetailsLiveData as MutableLiveData).postValue(profile) },
                 onFailure = { t -> Log.e(javaClass.simpleName, t.toString()) },
                 onException = { e -> Log.e(javaClass.simpleName, e.toString()) },
                 client = httpClient,
                 scheduler = scheduler
-        ).execute(URL(userProfileUrl))
+        ).execute(URL(userProfileUrl)) { profile ->
+            (userDetailsLiveData as MutableLiveData).postValue(profile)
+        }
     }
 
 }

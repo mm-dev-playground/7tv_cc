@@ -1,20 +1,23 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.repo
 
-import android.util.Log
 import androidx.paging.PageKeyedDataSource
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
-import com.a7tv.codingchallenge.codingchallengefor7tv.repo.data.GitHubAllUsersDataStream
-import com.a7tv.codingchallenge.codingchallengefor7tv.repo.data.GitHubUserSearchDataStream
-import com.a7tv.codingchallenge.codingchallengefor7tv.repo.http.HttpClientInterface
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.data.AllUsersDataStream
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.data.SearchUsersDataStream
+import com.a7tv.codingchallenge.codingchallengefor7tv.util.GitHubApiConstants.BASE_URL
+import com.a7tv.codingchallenge.codingchallengefor7tv.util.GitHubApiConstants.SEARCH_ENDPOINT
+import com.a7tv.codingchallenge.codingchallengefor7tv.util.GitHubApiConstants.USERS_ENDPOINT
+import com.a7tv.codingchallenge.codingchallengefor7tv.util.GitHubApiConstants.buildPagedQueryParam
+import com.a7tv.codingchallenge.codingchallengefor7tv.util.GitHubApiConstants.buildQueryParam
+import com.a7tv.codingchallenge.codingchallengefor7tv.util.GitHubApiConstants.buildSinceParam
 import com.a7tv.codingchallenge.codingchallengefor7tv.util.LinkHeaderParser
-import io.reactivex.Scheduler
 import io.reactivex.subjects.Subject
 import java.net.URL
 
-class GitHubDataSource(private val client: HttpClientInterface,
-                       private val httpRequestScheduler: Scheduler,
-                       initialSourceId: SourceId,
+class GitHubDataSource(initialSourceId: SourceId,
                        private var currentSearchText: String,
+                       private val allUsersDataStream: AllUsersDataStream,
+                       private val searchUsersDataStream: SearchUsersDataStream,
                        private val stateCommunicationSubject: Subject<Int>) :
         PageKeyedDataSource<Long, GitHubUser>() {
 
@@ -23,150 +26,78 @@ class GitHubDataSource(private val client: HttpClientInterface,
         object UserSearch : SourceId()
     }
 
-    private companion object GitHubApi {
-        const val BASE_URL = "https://api.github.com"
-        const val SEARCH_ENDPOINT = "/search"
-        const val USERS_ENDPOINT = "/users"
-        fun buildSinceParam(userId: Long) = "?since=$userId"
-        fun buildQueryParam(query: String) = "?q=$query"
-        fun buildPagedQueryParam(query: String, pageId: Long) = buildQueryParam(query) + "&page=$pageId"
-    }
-
     object State {
         const val ERROR = -1
-        const val INIT = 0
         const val LOADING = 1
         const val LOADED = 2
     }
 
-    //val stateLiveData: LiveData<Int> = MutableLiveData()
-
     var sourceId = initialSourceId
 
     override fun loadInitial(params: LoadInitialParams<Long>, callback: LoadInitialCallback<Long, GitHubUser>) {
-        signalInitialLoading()
+        signalLoading()
         when (sourceId) {
             SourceId.AllUsers -> startAllUsersDataStreamInitial(callback)
             SourceId.UserSearch -> startSearchUsersDataStreamInitial(callback)
         }
     }
 
+    override fun loadAfter(params: LoadParams<Long>, callback: LoadCallback<Long, GitHubUser>) {
+        if (params.key == LinkHeaderParser.FINAL_ID) {
+            callback.onResult(emptyList(), null) // signal end of data with emptyList() [see doc]
+        } else {
+            signalLoading()
+            when (sourceId) {
+                SourceId.AllUsers -> startAllUsersDataStreamAfter(params, callback)
+                SourceId.UserSearch -> startSearchUsersDataStreamAfter(params, callback)
+            }
+        }
+    }
+
     private fun startSearchUsersDataStreamInitial(callback: LoadInitialCallback<Long, GitHubUser>) {
-        GitHubUserSearchDataStream(
-                onSuccess = { (userList, nextPageId) ->
-                    signalLoadingSuccessful()
-                    callback.onResult(userList, null, nextPageId.number)
-                },
-                onFailure = { e ->
-                    Log.e(javaClass.simpleName, e.toString())
-                    signalLoadingError()
-                },
-                onException = { e ->
-                    Log.e(javaClass.simpleName, e.toString())
-                    signalLoadingError()
-                },
-                client = client,
-                scheduler = httpRequestScheduler
-        ).execute(
+        searchUsersDataStream.execute(
                 URL(BASE_URL + SEARCH_ENDPOINT + USERS_ENDPOINT + buildQueryParam(currentSearchText))
-        )
+        ) { (userList, nextPageId) ->
+            signalLoadingSuccessful()
+            callback.onResult(userList, null, nextPageId.number)
+        }
     }
 
     private fun startAllUsersDataStreamInitial(callback: LoadInitialCallback<Long, GitHubUser>) {
-        GitHubAllUsersDataStream(
-                onSuccess = { (userList, nextId) ->
-                    signalLoadingSuccessful()
-                    callback.onResult(userList, null, nextId.value)
-                },
-                onFailure = { e ->
-                    Log.e(javaClass.simpleName, e.toString())
-                    signalLoadingError()
-                },
-                onException = { e ->
-                    Log.e(javaClass.simpleName, e.toString())
-                    signalLoadingError()
-                },
-                client = client,
-                scheduler = httpRequestScheduler
-        ).execute(
+        allUsersDataStream.execute(
                 URL(BASE_URL + USERS_ENDPOINT + buildSinceParam(0L))
-        )
-    }
-
-    override fun loadAfter(params: LoadParams<Long>, callback: LoadCallback<Long, GitHubUser>) {
-        if (params.key == LinkHeaderParser.FINAL_ID) {
-            Log.w(javaClass.simpleName, "Skip loading - next page id is -1")
-            return
-        }
-        signalLoading()
-        when (sourceId) {
-            SourceId.AllUsers -> startAllUsersDataStreamAfter(params, callback)
-            SourceId.UserSearch -> startSearchUsersDataStreamAfter(params, callback)
+        ) { (userList, nextId) ->
+            signalLoadingSuccessful()
+            callback.onResult(userList, null, nextId.value)
         }
     }
 
     private fun startAllUsersDataStreamAfter(params: LoadParams<Long>,
                                              callback: LoadCallback<Long, GitHubUser>) {
-        GitHubAllUsersDataStream(
-                onSuccess = { (userList, nextId) ->
-                    signalLoadingSuccessful()
-                    callback.onResult(userList, nextId.value)
-                },
-                onFailure = { t ->
-                    Log.e(javaClass.simpleName, t.toString())
-                    signalLoadingError()
-                },
-                onException = { e ->
-                    Log.e(javaClass.simpleName, e.toString())
-                    signalLoadingError()
-                },
-                client = client,
-                scheduler = httpRequestScheduler
-        ).execute(
+        allUsersDataStream.execute(
                 URL(BASE_URL + USERS_ENDPOINT + buildSinceParam(params.key))
-        )
+        ) { (userList, nextId) ->
+            signalLoadingSuccessful()
+            callback.onResult(userList, nextId.value)
+        }
     }
 
     private fun startSearchUsersDataStreamAfter(params: LoadParams<Long>,
                                                 callback: LoadCallback<Long, GitHubUser>) {
-        GitHubUserSearchDataStream(
-                onSuccess = { (userList, nextPageId) ->
-                    signalLoadingSuccessful()
-                    callback.onResult(userList, nextPageId.number)
-                },
-                onFailure = { t ->
-                    Log.e(javaClass.simpleName, t.toString())
-                    signalLoadingError()
-                },
-                onException = { e ->
-                    Log.e(javaClass.simpleName, e.toString())
-                    signalLoadingError()
-                },
-                client = client,
-                scheduler = httpRequestScheduler
-        ).execute(
+        searchUsersDataStream.execute(
                 URL(BASE_URL + SEARCH_ENDPOINT + USERS_ENDPOINT +
                         buildPagedQueryParam(currentSearchText, params.key))
-        )
+        ) { (userList, nextPageId) ->
+            signalLoadingSuccessful()
+            callback.onResult(userList, nextPageId.number)
+        }
     }
 
     // ignored
     override fun loadBefore(params: LoadParams<Long>, callback: LoadCallback<Long, GitHubUser>) = Unit
 
-    fun onNewSearch(searchText: String) {
-        currentSearchText = searchText
-    }
-
-    private fun signalInitialLoading() {
-        stateCommunicationSubject.onNext(State.INIT)
-    }
-
     private fun signalLoadingSuccessful() {
         stateCommunicationSubject.onNext(State.LOADED)
-    }
-
-    private fun signalLoadingError() {
-        stateCommunicationSubject.onNext(State.ERROR)
     }
 
     private fun signalLoading() {

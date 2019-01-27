@@ -3,6 +3,8 @@ package com.a7tv.codingchallenge.codingchallengefor7tv.repo
 import android.util.Log
 import androidx.paging.DataSource
 import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.data.AllUsersDataStream
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.data.SearchUsersDataStream
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.http.SimpleHttpClient
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -19,13 +21,25 @@ class GitHubDataFactory : DataSource.Factory<Long, GitHubUser>() {
 
     private val stateCommunicationSubject = PublishSubject.create<Int>()
 
+    private val onLoadingFailure: (Throwable) -> Unit = { e ->
+        Log.e(javaClass.simpleName, e.toString())
+        stateCommunicationSubject.onNext(GitHubDataSource.State.ERROR)
+    }
+
+    private val onLoadingException: (Throwable) -> Unit = { e ->
+        Log.e(javaClass.simpleName, e.toString())
+        stateCommunicationSubject.onNext(GitHubDataSource.State.ERROR)
+    }
+
     override fun create(): DataSource<Long, GitHubUser> {
         currentDataSource = GitHubDataSource(
-                SimpleHttpClient(), Schedulers.io(), currentSourceId, currentSearchText,
+                currentSourceId,
+                currentSearchText,
+                AllUsersDataStream(SimpleHttpClient(), Schedulers.io(), onLoadingFailure, onLoadingException),
+                SearchUsersDataStream(SimpleHttpClient(), Schedulers.io(), onLoadingFailure, onLoadingException),
                 stateCommunicationSubject
         )
         dataSourceInitialized = true
-        // dataSourceLiveData = currentDataSource.stateLiveData
         return currentDataSource
     }
 

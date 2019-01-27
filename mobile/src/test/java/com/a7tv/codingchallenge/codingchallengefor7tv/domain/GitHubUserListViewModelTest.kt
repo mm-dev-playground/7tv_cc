@@ -1,11 +1,19 @@
 package com.a7tv.codingchallenge.codingchallengefor7tv.domain
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 import androidx.paging.LivePagedListBuilder
+import androidx.paging.PageKeyedDataSource
 import androidx.paging.PagedList
+import com.a7tv.codingchallenge.codingchallengefor7tv.model.GitHubUser
 import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataFactory
+import com.a7tv.codingchallenge.codingchallengefor7tv.repo.GitHubDataSource
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Rule
 import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
 
 
 internal class GitHubUserListViewModelTest {
@@ -24,20 +32,34 @@ internal class GitHubUserListViewModelTest {
                         .build()
         )
         val viewModel = GitHubUserListViewModel(dataFactory, listBuilder)
+        val source = dataFactory.create()
+        source as PageKeyedDataSource<Long, GitHubUser>
 
-        val dataSource = dataFactory.create()
 
-        viewModel.searchTextEdited("TEST!")
+        var currentLoadingState = -1
+        //val countDownLatch = CountDownLatch(1)
 
-        viewModel.loadingStateData.observeForever { loadingState ->
-            println(loadingState)
+        val lifecycleOwner = mock<LifecycleOwner> {  }
+        val lifecycle = LifecycleRegistry(lifecycleOwner).apply {
+            handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
         }
 
-        viewModel.usersLiveData.observeForever { pagedUserList ->
-            println(pagedUserList.joinToString())
+        viewModel.loadingStateData.observe({ lifecycle }) { loadingState ->
+            currentLoadingState = loadingState
         }
 
-        dataSource.invalidate()
+        source.loadInitial(
+                PageKeyedDataSource.LoadInitialParams(20, true),
+                object: PageKeyedDataSource.LoadInitialCallback<Long, GitHubUser>() {
+                    override fun onResult(data: MutableList<GitHubUser>, position: Int,
+                                          totalCount: Int, previousPageKey: Long?,
+                                          nextPageKey: Long?) = Unit
+                    override fun onResult(data: MutableList<GitHubUser>, previousPageKey: Long?,
+                                          nextPageKey: Long?) = Unit
+                }
+        )
+
+        assertEquals(GitHubDataSource.State.LOADED, currentLoadingState)
     }
 
 }

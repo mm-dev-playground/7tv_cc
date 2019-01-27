@@ -46,4 +46,5 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
     testImplementation "org.junit.vintage:junit-vintage-engine:$junit_version"
     testImplementation 'android.arch.core:core-testing:1.1.1'
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
 }

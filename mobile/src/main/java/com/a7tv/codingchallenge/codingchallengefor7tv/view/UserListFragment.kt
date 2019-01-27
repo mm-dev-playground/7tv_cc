@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.IntRange
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -90,17 +89,12 @@ class UserListFragment : Fragment() {
                 recycler_view.adapter = it
             }
 
-    private fun applyLoadingState(@IntRange(from=-1, to=2) loadingState: Int) {
+    private fun applyLoadingState(loadingState: Int) {
         when (loadingState) {
-            GitHubDataSource.State.INIT -> userListInitializing()
             GitHubDataSource.State.LOADING -> userListIsLoading()
             GitHubDataSource.State.LOADED -> userListLoaded()
             GitHubDataSource.State.ERROR -> userListLoadingFailed()
         }
-    }
-
-    private fun userListInitializing() {
-        loading_indicator.visibility = View.VISIBLE
     }
 
     private fun userListIsLoading() {

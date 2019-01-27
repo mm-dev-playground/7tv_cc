@@ -8,7 +8,6 @@ import io.reactivex.Scheduler
 import java.net.URL
 
 class GitHubProfileDataStream(
-        override val onSuccess: (GitHubUserProfile) -> Unit,
         override val onFailure: (Throwable) -> Unit,
         override val onException: (Throwable) -> Unit,
         private val client: HttpClientInterface,
@@ -17,7 +16,7 @@ class GitHubProfileDataStream(
 
     @SuppressLint("CheckResult")
     // single subscription return value can be neglected, see http://reactivex.io/documentation/single.html
-    override fun execute(input: URL) {
+    override fun execute(input: URL, onSuccess: (GitHubUserProfile) -> Unit) {
         client.getJsonFrom(input)
                 .map { answerTry ->
                     answerTry.flatMap { answer ->

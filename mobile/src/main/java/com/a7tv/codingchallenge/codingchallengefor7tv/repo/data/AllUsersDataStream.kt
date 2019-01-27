@@ -10,19 +10,18 @@ import com.a7tv.codingchallenge.codingchallengefor7tv.util.typeclasses.Try
 import io.reactivex.Scheduler
 import java.net.URL
 
-class GitHubAllUsersDataStream(
-        override val onSuccess: (Pair<List<GitHubUser>, GitHubUserId>) -> Unit,
-        override val onFailure: (Throwable) -> Unit,
-        override val onException: (Throwable) -> Unit,
+class AllUsersDataStream(
         private val client: HttpClientInterface,
-        private val scheduler: Scheduler
+        private val scheduler: Scheduler,
+        override val onFailure: (Throwable) -> Unit,
+        override val onException: (Throwable) -> Unit
 ) : DataStream<Pair<List<GitHubUser>, GitHubUserId>, URL> {
 
     private val linkHeaderParser = LinkHeaderParser()
 
     @SuppressLint("CheckResult")
     // single subscription return value can be neglected, see http://reactivex.io/documentation/single.html
-    override fun execute(input: URL) {
+    override fun execute(input: URL, onSuccess: (Pair<List<GitHubUser>, GitHubUserId>) -> Unit) {
         client.getJsonFrom(input)
                 .map { answerTry ->
                     parseUserListFromJson(answerTry)
