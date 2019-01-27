@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">CodingChallengeFor7tv</string>
     <string name="hint_search_for_github_users">Search for GitHub Users</string>
-    <string name="some_error_occured">Some error occured :(</string>
+    <string name="some_error_occurred">Some error occurred :(</string>
 
     <string name="user_name"><b>Name</b>: %1$s</string>
     <string name="followers_count">Followers Count: %1$s</string>

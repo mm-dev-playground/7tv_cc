@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
-            android:textSize="24dp"
+            android:textSize="24sp"
             tools:text="Hello" />
 
     </LinearLayout>

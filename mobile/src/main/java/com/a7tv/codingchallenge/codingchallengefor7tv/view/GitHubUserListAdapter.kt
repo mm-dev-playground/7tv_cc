@@ -39,7 +39,6 @@ class GitHubUserListAdapter(private val userTappedCallback: (GitHubUser) -> Unit
                     holder as UserListEntryViewHolder
                     holder.model = this
                     holder.textView.text = this.login
-                    // TODO check if resources needs to be flushed on destroy
                     Picasso.get().load(avatarUrl).into(holder.imageView)
                 }
             }
@@ -56,7 +55,7 @@ class GitHubUserListAdapter(private val userTappedCallback: (GitHubUser) -> Unit
 
         init {
             view.setOnClickListener {
-                model?.let { userTappedCallback(it) }
+                model?.let { nonNullModel -> userTappedCallback(nonNullModel) }
             }
         }
     }

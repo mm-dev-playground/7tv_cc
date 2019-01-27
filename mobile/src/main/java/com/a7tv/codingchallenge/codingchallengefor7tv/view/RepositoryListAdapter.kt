@@ -41,7 +41,7 @@ class RepositoryListAdapter :
         }
     }
 
-    private class RepositoryEntryViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+    private class RepositoryEntryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.repository_name_text_view)
     }
 
