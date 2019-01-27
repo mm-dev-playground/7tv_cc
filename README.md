@@ -27,6 +27,7 @@
 
 ### UI/UX
 
+- Recovery when a API request in the list fragment crashes is not implemented; it just informs the user
 - No styles used (e.g. for headers in detail fragment)
 - No proper color palette
 - Layouts can be optimized (nested relative / linear layouts)
